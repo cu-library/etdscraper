@@ -1,10 +1,10 @@
 # etdscraper
 
-This project is meant to scrape metadata using Scrapy output the data into a json file and than compare those files to check certain fields and will report if they do not match 
+This project is meant to scrape metadata using scrapy output the data into a json file and then compare those files to check certain fields and will report if they do not match 
 
 Setup:
 
-Make sure you are running in your virtual enviroment and to install scrapy 
+Make sure you are running in your virtual environment and to install scrapy 
 
 pip install scrapy
 
@@ -17,4 +17,4 @@ scrapy crawl hyraxspdier -o hyrax_output.json
 
 The last part of it is the cuirator_compare.py
 
-This will compare all the fields and dump out any errors in a json files afterwards. 
+This will compare all the fields and dump out any errors in a json files afterwards.
