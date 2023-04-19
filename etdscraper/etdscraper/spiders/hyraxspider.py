@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 import requests
 import hashlib
 import time
+import json
 
 #TODO: set up a way ask the user what if we want to parse single page, the repo or by json 
 #TODO: check for unused method/imports
@@ -12,23 +13,20 @@ import time
 class HyraxSpider(scrapy.Spider):
 
     name = 'hyraxspider'
-    #allowed_domains = ['https://digitallibrary-test2.library.carleton.ca']
-    test_domains = ['https://127.0.0.1:3000']
-    #start_urls = ['https://digitallibrary-test2.library.carleton.ca/catalog?locale=en']
-    start_urls = ['http://127.0.0.1:3000/catalog?locale=en']
+    allowed_domains = ['digitallibrary-test2.library.carleton.ca']
+    #test_domains = ['https://127.0.0.1:3000']
+    start_urls = ['https://digitallibrary-test2.library.carleton.ca/catalog?locale=en']
+    #start_urls = ['http://127.0.0.1:3000/catalog?locale=en']
 
     def parse(self, response):
         
-        # Parse a single page
-        url = 'http://127.0.0.1:3000/concern/etds/t435gc97w?locale=en'
-        yield scrapy.Request(url=url, callback=self.parse_meta_data)
-
-        # Parse the entire repository
-        #yield scrapy.Request(url='http://127.0.0.1:3000/catalog?locale=en', callback=self.parse_all_pages)
-
-        #TODO: Parse with a provided JSON file (Not yet implemented)
-        #yield scrapy.Request(url=url, callback=self.parse_json)
-        
+        with open('modified_urls.json', 'r') as f:
+            data = json.load(f)
+        for item in data['urls']:
+            url = item['hyrax_url']
+            if not url.startswith('http'):
+                url = 'https://' + url
+            yield scrapy.Request(url=url, callback=self.parse_meta_data) 
 
     def parse_all_pages(self, response):
         for li in response.css('li.document'):
@@ -53,7 +51,7 @@ class HyraxSpider(scrapy.Spider):
         title = response.css('div.work-title-wrapper h1::text').get()
         creator = response.css('dl.work-show dt:contains("Creator") + dd a::text').get().strip()
         date_created = response.css('li.attribute-date_created::text').get()
-        language = response.css('ul.tabular li.attribute-language a::text').getall()
+        language = response.css('ul.tabular li.attribute-language a::text').get()
         publisher = response.css('dl.work-show dt:contains("Publisher") + dd a::text').get().strip()
         thesis_degree_level = response.css('dl.work-show dt:contains("Thesis Degree Level") + dd a::text').get().strip()
 

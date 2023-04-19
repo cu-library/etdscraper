@@ -27,9 +27,10 @@ class CurvespiderSpider(scrapy.Spider):
             yield scrapy.Request(url=next_page_url, callback=self.parse)
 
     def parse(self, response):
-        with open('urls.json', 'r') as f:
+        with open('modified_urls.json', 'r') as f:
             data = json.load(f)
-        for url in data['urls']:
+        for item in data['urls']:
+            url = item['curve_url']
             if not url.startswith('http'):
                 url = 'https://' + url
             yield scrapy.Request(url=url, callback=self.parse_thesis_page)
@@ -47,7 +48,8 @@ class CurvespiderSpider(scrapy.Spider):
         title = response.css('meta[property="og:title"]::attr(content)').get()
         creator = response.css('meta[name="dcterms.creator"]::attr(content)').get()
         date = response.css('meta[name="citation_publication_date"]::attr(content)').get()
-        language = response.css('meta[name="dcterms.language"]::attr(content)').get()
+        language_full = response.css('meta[name="dcterms.language"]::attr(content)').get()
+        language = language_full.split(':')[0].strip()
         publisher = response.css('meta[name="dcterms.publisher"]::attr(content)').get()
         thesis_degree_level = response.css('.field-name-thesis-degree-level .field-item::text').get().strip()
         subject = response.css('.field-name-dcterms-subject .field-item::text').getall()
